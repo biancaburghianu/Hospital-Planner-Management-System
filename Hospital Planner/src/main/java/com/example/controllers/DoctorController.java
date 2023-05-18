@@ -1,9 +1,9 @@
-package controllers;
+package com.example.controllers;
 
-import models.Doctor;
+import com.example.models.Doctor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import respositories.DoctorRepository;
+import com.example.repositories.DoctorRepository;
 
 import java.util.List;
 @RestController
