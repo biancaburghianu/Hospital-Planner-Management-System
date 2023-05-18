@@ -1,12 +1,11 @@
 package models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -14,8 +13,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public class Patient {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    @GeneratedValue
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
     @Column(name = "patient_name", nullable = false)
     private String patientName;
@@ -32,12 +32,15 @@ public class Patient {
     @Column(name = "birth_date", nullable = false)
     private String patientBirthDate;
 
+    public Patient() {
+    }
+
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -81,7 +84,7 @@ public class Patient {
         this.patientBirthDate = patientBirthDate;
     }
 
-    public Patient(long id, String patientName, String patientEmail, String patientPhoneNumber, String patientPassword, String patientBirthDate) {
+    public Patient(int id, String patientName, String patientEmail, String patientPhoneNumber, String patientPassword, String patientBirthDate) {
         this.id = id;
         this.patientName = patientName;
         this.patientEmail = patientEmail;

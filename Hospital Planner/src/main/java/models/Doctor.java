@@ -1,12 +1,11 @@
 package models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -14,8 +13,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public class Doctor {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    @GeneratedValue
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
     @Column(name = "doctor_name", nullable = false)
     private String doctorName;
@@ -35,11 +35,14 @@ public class Doctor {
     @Column(name = "specialisation", nullable = false)
     private String doctorSpecialisation;
 
+    public Doctor() {
+    }
+
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -88,6 +91,16 @@ public class Doctor {
     }
 
     public void setDoctorSpecialisation(String doctorSpecialisation) {
+        this.doctorSpecialisation = doctorSpecialisation;
+    }
+
+    public Doctor(Integer id, String doctorName, String doctorEmail, String doctorPhoneNumber, String doctorPassword, String doctorOffice, String doctorSpecialisation) {
+        this.id = id;
+        this.doctorName = doctorName;
+        this.doctorEmail = doctorEmail;
+        this.doctorPhoneNumber = doctorPhoneNumber;
+        this.doctorPassword = doctorPassword;
+        this.doctorOffice = doctorOffice;
         this.doctorSpecialisation = doctorSpecialisation;
     }
 }
