@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import com.example.repositories.DoctorRepository;
 
 import java.util.List;
+import java.util.Optional;
+
 @RestController
-@RequestMapping("/api/")
 public class DoctorController {
     @Autowired
     private DoctorRepository doctorRepository;
@@ -18,5 +19,16 @@ public class DoctorController {
     @PostMapping("/doctors")
     public Doctor createDoctor(@RequestBody Doctor patient) {
         return doctorRepository.save(patient);
+    }
+    @DeleteMapping("/doctors/{id}")
+    public String deleteDoctor(@PathVariable("id") Integer id)
+    {
+        Optional<Doctor> doctor=doctorRepository.findById(id);
+        if(doctor.isPresent())
+        {
+            doctorRepository.deleteById(id);
+            return "S-a sters";
+        }
+        return "Nu s-a sters";
     }
 }

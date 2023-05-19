@@ -1,19 +1,25 @@
 package com.example.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.Set;
+
 @Entity
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "patients")
 @EntityListeners(AuditingEntityListener.class)
 public class Patient {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Integer id;
 
@@ -32,64 +38,7 @@ public class Patient {
     @Column(name = "birth_date", nullable = false)
     private String patientBirthDate;
 
-    public Patient() {
-    }
-
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getPatientName() {
-        return patientName;
-    }
-
-    public void setPatientName(String patientName) {
-        this.patientName = patientName;
-    }
-
-    public String getPatientEmail() {
-        return patientEmail;
-    }
-
-    public void setPatientEmail(String patientEmail) {
-        this.patientEmail = patientEmail;
-    }
-
-    public String getPatientPhoneNumber() {
-        return patientPhoneNumber;
-    }
-
-    public void setPatientPhoneNumber(String patientPhoneNumber) {
-        this.patientPhoneNumber = patientPhoneNumber;
-    }
-
-    public String getPatientPassword() {
-        return patientPassword;
-    }
-
-    public void setPatientPassword(String patientPassword) {
-        this.patientPassword = patientPassword;
-    }
-
-    public String getPatientBirthDate() {
-        return patientBirthDate;
-    }
-
-    public void setPatientBirthDate(String patientBirthDate) {
-        this.patientBirthDate = patientBirthDate;
-    }
-
-    public Patient(int id, String patientName, String patientEmail, String patientPhoneNumber, String patientPassword, String patientBirthDate) {
-        this.id = id;
-        this.patientName = patientName;
-        this.patientEmail = patientEmail;
-        this.patientPhoneNumber = patientPhoneNumber;
-        this.patientPassword = patientPassword;
-        this.patientBirthDate = patientBirthDate;
-    }
+    @JsonIgnore
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
+    Set<Preference> preferences;
 }
