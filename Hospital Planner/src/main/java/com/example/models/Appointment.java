@@ -12,9 +12,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "preferences")
+@Table(name = "appointments")
 @EntityListeners(AuditingEntityListener.class)
-public class Preference {
+public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", nullable = false)
@@ -28,12 +28,22 @@ public class Preference {
     @JoinColumn(name = "patient_id")
     Patient patient;
 
+    @Column(name="time")
+    private String time;
+
+    @Column(name="description")
+    private String description;
+
     @Override
     public String toString() {
-        return "Preference{" +
+        return "Appointment{" +
                 "id=" + id +
                 ", doctor=" + doctor +
                 ", patient=" + patient +
+                ", time='" + time + '\'' +
+                ", description='" + description + '\'' +
                 '}';
     }
 }
+
+// id_doctor,id_pacient, time, description
