@@ -7,6 +7,7 @@ import com.example.repositories.AppointmentRepository;
 import com.example.repositories.DoctorRepository;
 import com.example.repositories.PatientRepository;
 import com.example.utils.AppointmentRequest;
+import com.example.utils.HospitalProgram;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 public class AppointmentController {
@@ -60,15 +62,12 @@ public class AppointmentController {
                     .body("Pacientul nu exista in baza de date");
         }
         // verificam daca ora este valida
-        List<String> validAppointmentTimes = Arrays.asList("8:00", "8:20", "8:40", "9:00", "9:20", "9:40", "10:00",
-                "10:20", "10:40", "11:00", "11:20", "11:40", "12:00",
-                "12:20", "12:40", "13:00", "13:20", "13:40", "14:00",
-                "14:20", "14:40", "15:00", "15:20", "15:40"); // Lista cu orele valide
-        if (!validAppointmentTimes.contains(request.getTime())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Ora specificată nu este validă.");
-        }
+        HospitalProgram hospitalProgram = new HospitalProgram();
 
+        if (!!HospitalProgram.isValid(request.getTime())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Ora specificata nu se afla in programul spitalului nostru.");
+        }
         // creeaza obiectul Appointment
         Appointment appointment = new Appointment();
         appointment.setDoctor(doctor);
@@ -88,7 +87,7 @@ public class AppointmentController {
 
             Email from = new Email("hospitalplannerjava@gmail.com");
             String subject = "Programare in clinica HospitalPlannerJava";
-            Email to = new Email("biancaburghianu2001@gmail.com");
+            Email to = new Email(patient.getPatientEmail());
             Content content = new Content("text/plain", "Informatii legate de programarea ta: " +
                     "Programarea incepe la ora: "+ appointment.getTime() + " . Sediul nostru este in Iasi, pe strada HospitalPlannerJava. "+
                     "Doctorul la care ai programare este: " + doctorRepository.findDoctorName(request.getDoctorId()) + ". Iti multumim!");
