@@ -16,10 +16,27 @@ public class DoctorController {
     public List<Doctor> getAllDoctors(){
         return doctorRepository.findAll();
     }
+    @GetMapping("/doctors/{id}")
+    public String findDoctor(@PathVariable("id") Integer id)
+    {
+        Optional<Doctor> doctor = doctorRepository.findById(id);
+        if (doctor.isPresent()) {
+            Doctor doctorObj = doctor.get();
+
+            return "Doctor ID: " + doctorObj.getId() +
+                    "\nDoctor Name: " + doctorObj.getDoctorName() +
+                    "\nEmail: " + doctorObj.getDoctorEmail() +
+                    "\nPhone Number: " + doctorObj.getDoctorPhoneNumber() +
+                    "\nOffice: " + doctorObj.getDoctorOffice() +
+                    "\nSpecialization: " + doctorObj.getDoctorSpecialisation();
+        }
+        return "Nu exista";
+    }
     @PostMapping("/doctors")
     public Doctor createDoctor(@RequestBody Doctor patient) {
         return doctorRepository.save(patient);
     }
+
     @DeleteMapping("/doctors/{id}")
     public String deleteDoctor(@PathVariable("id") Integer id)
     {

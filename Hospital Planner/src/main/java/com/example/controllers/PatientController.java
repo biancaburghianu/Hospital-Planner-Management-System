@@ -1,6 +1,5 @@
 package com.example.controllers;
 
-import com.example.models.Doctor;
 import com.example.models.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +17,22 @@ public class PatientController {
     @GetMapping("/patients")
     public List<Patient> getAllPatients(){
         return patientRepository.findAll();
+    }
+
+    @GetMapping("/patients/{id}")
+    public String findPatient(@PathVariable("id") Integer id)
+    {
+        Optional<Patient> patient = patientRepository.findById(id);
+        if (patient.isPresent()) {
+            Patient patientObj = patient.get();
+
+            return "Patient ID: " + patientObj.getId() +
+                    "\nPatient Name: " + patientObj.getPatientName() +
+                    "\nEmail: " + patientObj.getPatientEmail() +
+                    "\nPhone Number: " + patientObj.getPatientPhoneNumber() +
+                    "\nBirth Date: " + patientObj.getPatientBirthDate();
+        }
+        return "Nu exista";
     }
 
     @PostMapping("/patients")

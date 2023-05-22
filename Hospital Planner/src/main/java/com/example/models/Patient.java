@@ -41,4 +41,22 @@ public class Patient {
     @JsonIgnore
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
     Set<Preference> preferences;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
+    Set<Appointment> appointments;
+
+    @Override
+    public String toString() {
+        return "Patient{" +
+                "id=" + id +
+                ", patientName='" + patientName + '\'' +
+                ", patientEmail='" + patientEmail + '\'' +
+                ", patientPhoneNumber='" + patientPhoneNumber + '\'' +
+                ", patientPassword='" + patientPassword + '\'' +
+                ", patientBirthDate='" + patientBirthDate + '\'' +
+                ", preferences=" + preferences +
+                ", appointments=" + appointments +
+                '}';
+    }
 }

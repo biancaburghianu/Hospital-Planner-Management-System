@@ -1,5 +1,6 @@
 package com.example.controllers;
 
+
 import com.example.models.Doctor;
 import com.example.models.Patient;
 import com.example.models.Preference;
@@ -32,6 +33,24 @@ public class PreferenceController {
     @GetMapping("/preferences")
     public List<Preference> getAllPreferences(){
         return preferenceRepository.findAll();
+    }
+
+    @GetMapping("/preferences/{id}")
+    public String findPreference(@PathVariable("id") Integer id)
+    {
+        Optional<Preference> preference = preferenceRepository.findById(id);
+        if (preference.isPresent()) {
+            Preference preferenceObj = preference.get();
+            Doctor doctor = preferenceObj.getDoctor();
+            Patient patient = preferenceObj.getPatient();
+
+            return "Preference ID: " + preferenceObj.getId() +
+                    "\nDoctor ID: " + doctor.getId() +
+                    "\nDoctor Name: " + doctor.getDoctorName() +
+                    "\nPatient ID: " + patient.getId() +
+                    "\nPatient Name: " + patient.getPatientName();
+        }
+        return "Nu exista";
     }
 
     @PostMapping("/preferences")
