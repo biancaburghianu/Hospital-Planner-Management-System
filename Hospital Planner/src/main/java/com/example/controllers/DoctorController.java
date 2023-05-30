@@ -32,10 +32,6 @@ public class DoctorController {
         }
         return "Nu exista";
     }
-    @PostMapping("/doctors")
-    public Doctor createDoctor(@RequestBody Doctor patient) {
-        return doctorRepository.save(patient);
-    }
 
     @DeleteMapping("/doctors/{id}")
     public String deleteDoctor(@PathVariable("id") Integer id)

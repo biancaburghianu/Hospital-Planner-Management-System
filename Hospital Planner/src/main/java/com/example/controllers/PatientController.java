@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/hospitalplanner")
 public class PatientController {
     @Autowired
     private PatientRepository patientRepository;
@@ -35,10 +36,6 @@ public class PatientController {
         return "Nu exista";
     }
 
-    @PostMapping("/patients")
-    public Patient createPatient(@RequestBody Patient patient) {
-        return patientRepository.save(patient);
-    }
     @DeleteMapping("/patients/{id}")
     public String deletePatients(@PathVariable("id") Integer id)
     {
