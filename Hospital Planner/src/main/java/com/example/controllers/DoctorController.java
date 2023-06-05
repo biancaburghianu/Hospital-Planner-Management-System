@@ -2,12 +2,13 @@ package com.example.controllers;
 
 import com.example.models.Doctor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.repositories.DoctorRepository;
 
 import java.util.List;
 import java.util.Optional;
-
+@RequestMapping("/hospitalplanner")
 @RestController
 public class DoctorController {
     @Autowired
@@ -17,31 +18,31 @@ public class DoctorController {
         return doctorRepository.findAll();
     }
     @GetMapping("/doctors/{id}")
-    public String findDoctor(@PathVariable("id") Integer id)
+    public ResponseEntity<String> findDoctor(@PathVariable("id") Integer id)
     {
         Optional<Doctor> doctor = doctorRepository.findById(id);
         if (doctor.isPresent()) {
             Doctor doctorObj = doctor.get();
 
-            return "Doctor ID: " + doctorObj.getId() +
+            return ResponseEntity.ok("Doctor ID: " + doctorObj.getId() +
                     "\nDoctor Name: " + doctorObj.getDoctorName() +
                     "\nEmail: " + doctorObj.getDoctorEmail() +
                     "\nPhone Number: " + doctorObj.getDoctorPhoneNumber() +
                     "\nOffice: " + doctorObj.getDoctorOffice() +
-                    "\nSpecialization: " + doctorObj.getDoctorSpecialisation();
+                    "\nSpecialization: " + doctorObj.getDoctorSpecialisation());
         }
-        return "Nu exista";
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/doctors/{id}")
-    public String deleteDoctor(@PathVariable("id") Integer id)
+    public ResponseEntity<Void> deleteDoctor(@PathVariable("id") Integer id)
     {
         Optional<Doctor> doctor=doctorRepository.findById(id);
         if(doctor.isPresent())
         {
             doctorRepository.deleteById(id);
-            return "S-a sters";
+            return ResponseEntity.noContent().build();
         }
-        return "Nu s-a sters";
+        return ResponseEntity.notFound().build();
     }
 }
