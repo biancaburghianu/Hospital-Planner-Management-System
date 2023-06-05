@@ -1,19 +1,34 @@
 package com.example.controllers;
 
+import com.example.models.Doctor;
 import com.example.models.Patient;
+import com.example.repositories.DoctorRepository;
+import com.example.service.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import com.example.repositories.PatientRepository;
 
 import java.util.List;
 import java.util.Optional;
-
+@Log
 @RestController
 @RequestMapping("/hospitalplanner")
 public class PatientController {
     @Autowired
     private PatientRepository patientRepository;
+    @Autowired
+    private DoctorRepository doctorRepository;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private HttpServletRequest request;
+
 
 
     @GetMapping("/patients")
@@ -37,15 +52,47 @@ public class PatientController {
         return ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/patients/{id}")
-    public ResponseEntity<Void> deletePatients(@PathVariable("id") Integer id)
+    @DeleteMapping("/patients/deleteAccount")
+    public ResponseEntity<Void> deletePatients()
     {
-        Optional<Patient> patient=patientRepository.findById(id);
-        if(patient.isPresent())
+        Patient currentUser = getPatientFromToken();
+        if(currentUser!=null)
         {
-            patientRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+            Optional<Patient> patient=patientRepository.findById(currentUser.getId());
+            if(patient.isPresent())
+            {
+                patientRepository.deleteById(currentUser.getId());
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+        else throw new UsernameNotFoundException("User not found");
+    }
+    private Patient getPatientFromToken() {
+        String token = request.getHeader("Authorization");
+        String username;
+        String jwtToken;
+        Optional<Patient> currentUser = Optional.empty();
+        if (token != null && token.startsWith("Bearer")) {
+            jwtToken = token.substring(7);
+            try {
+                username = jwtService.extractUsername(jwtToken);
+                Optional<Doctor> currentDoctor = doctorRepository.findByEmail(username);
+                if (currentDoctor.isPresent()) {
+                    // Return null if a patient is authenticated
+                    return null;
+                } else {
+                    // Retrieve the doctor based on username
+                    currentUser = patientRepository.findByEmail(username);
+                }
+            } catch (IllegalArgumentException e) {
+                log.warning("Unable to get token");
+            }
+        } else {
+            log.info("Token does not begin with Bearer String");
+        }
+        if (currentUser.isPresent())
+            return currentUser.get();
+        else throw new UsernameNotFoundException("User not found");
     }
 }

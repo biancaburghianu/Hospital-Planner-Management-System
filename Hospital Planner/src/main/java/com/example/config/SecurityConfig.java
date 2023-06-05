@@ -65,7 +65,16 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout()
+                .logoutUrl("/hospitalplanner/patients/deleteAccount")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .and()
+                .logout()
+                .logoutUrl("/hospitalplanner/doctors/deleteAccount")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true);
         return http.build();
     }
 
