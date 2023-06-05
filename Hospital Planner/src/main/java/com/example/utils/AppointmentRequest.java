@@ -3,23 +3,13 @@ package com.example.utils;
 public class AppointmentRequest {
 
     Integer doctorId;
-    Integer patientId;
     String time;
     String description;
 
-    public AppointmentRequest(Integer patientId, Integer doctorId, String time, String description) {
-        this.patientId = patientId;
+    public AppointmentRequest(Integer doctorId, String time, String description) {
         this.doctorId = doctorId;
         this.time = time;
         this.description = description;
-    }
-
-    public Integer getPatientId() {
-        return patientId;
-    }
-
-    public void setPatientId(Integer patientId) {
-        this.patientId = patientId;
     }
 
     public Integer getDoctorId() {
@@ -50,7 +40,6 @@ public class AppointmentRequest {
     public String toString() {
         return "AppointmentRequest{" +
                 "doctorId=" + doctorId +
-                ", patientId=" + patientId +
                 ", time='" + time + '\'' +
                 ", description='" + description + '\'' +
                 '}';

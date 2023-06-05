@@ -1,47 +1,99 @@
 package com.example.controllers;
 
 import com.example.models.Doctor;
+import com.example.models.Patient;
+import com.example.repositories.PatientRepository;
+import com.example.service.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import com.example.repositories.DoctorRepository;
 
 import java.util.List;
 import java.util.Optional;
-
+@Log
+@RequestMapping("/hospitalplanner")
 @RestController
 public class DoctorController {
     @Autowired
     private DoctorRepository doctorRepository;
+    @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private HttpServletRequest request;
+
     @GetMapping("/doctors")
     public List<Doctor> getAllDoctors(){
         return doctorRepository.findAll();
     }
     @GetMapping("/doctors/{id}")
-    public String findDoctor(@PathVariable("id") Integer id)
+    public ResponseEntity<String> findDoctor(@PathVariable("id") Integer id)
     {
         Optional<Doctor> doctor = doctorRepository.findById(id);
         if (doctor.isPresent()) {
             Doctor doctorObj = doctor.get();
 
-            return "Doctor ID: " + doctorObj.getId() +
+            return ResponseEntity.ok("Doctor ID: " + doctorObj.getId() +
                     "\nDoctor Name: " + doctorObj.getDoctorName() +
                     "\nEmail: " + doctorObj.getDoctorEmail() +
                     "\nPhone Number: " + doctorObj.getDoctorPhoneNumber() +
                     "\nOffice: " + doctorObj.getDoctorOffice() +
-                    "\nSpecialization: " + doctorObj.getDoctorSpecialisation();
+                    "\nSpecialization: " + doctorObj.getDoctorSpecialisation());
         }
-        return "Nu exista";
+        return ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/doctors/{id}")
-    public String deleteDoctor(@PathVariable("id") Integer id)
+    @DeleteMapping("/doctors/deleteAccount")
+    public ResponseEntity<Void> deleteDoctor()
     {
-        Optional<Doctor> doctor=doctorRepository.findById(id);
-        if(doctor.isPresent())
+        Doctor currentUser=getDoctorFromToken();
+        if(currentUser!=null)
         {
-            doctorRepository.deleteById(id);
-            return "S-a sters";
+            Optional<Doctor> doctor=doctorRepository.findById(currentUser.getId());
+            if(doctor.isPresent())
+            {
+                doctorRepository.deleteById(currentUser.getId());
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.notFound().build();
         }
-        return "Nu s-a sters";
+        throw new UsernameNotFoundException("User not found");
+    }
+    private Doctor getDoctorFromToken() {
+        String token = request.getHeader("Authorization");
+        String username;
+        String jwtToken;
+        Optional<Doctor> currentUser = Optional.empty();
+        if (token != null && token.startsWith("Bearer")) {
+            jwtToken = token.substring(7);
+            try {
+                username = jwtService.extractUsername(jwtToken);
+                Optional<Patient> currentPatient = patientRepository.findByEmail(username);
+                if (currentPatient.isPresent()) {
+                    // Return null if a patient is authenticated
+                    return null;
+                } else {
+                    // Retrieve the doctor based on username
+                    currentUser = doctorRepository.findByEmail(username);
+                }
+            } catch (IllegalArgumentException e) {
+                log.warning("Unable to get token");
+            }
+        } else {
+            log.info("Token does not begin with Bearer String");
+        }
+        if (currentUser.isPresent())
+        {
+            return currentUser.get();
+        }
+
+        else throw new UsernameNotFoundException("User not found");
     }
 }
