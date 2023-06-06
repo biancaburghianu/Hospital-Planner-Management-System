@@ -33,6 +33,12 @@ public class DoctorController {
     public List<Doctor> getAllDoctors(){
         return doctorRepository.findAll();
     }
+
+    /**
+     * using id given return information about a doctor if the doctor exists in db
+     * @param id of a doctor
+     * @return details about a doctor
+     */
     @GetMapping("/doctors/{id}")
     public ResponseEntity<String> findDoctor(@PathVariable("id") Integer id)
     {
@@ -50,6 +56,10 @@ public class DoctorController {
         return ResponseEntity.notFound().build();
     }
 
+    /**
+     * delete from db current user information-works like delete account
+     * @return success message (No_Content) or Not_Found
+     */
     @DeleteMapping("/doctors/deleteAccount")
     public ResponseEntity<Void> deleteDoctor()
     {
@@ -66,6 +76,11 @@ public class DoctorController {
         }
         throw new UsernameNotFoundException("User not found");
     }
+
+    /**
+     * using the jwt get the current user if it is a doctor or null if a patient is authenticated
+     * @return current doctor or null
+     */
     private Doctor getDoctorFromToken() {
         String token = request.getHeader("Authorization");
         String username;

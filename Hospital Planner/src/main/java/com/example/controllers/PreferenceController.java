@@ -44,6 +44,10 @@ public class PreferenceController {
         this.patientRepository = patientRepository;
     }
 
+    /**
+     *
+     * @return all preferences of the current user
+     */
     @GetMapping("/preferences")
     public Set<Preference> getAllPreferences(){
         Patient currentUser = getPatientFromToken();
@@ -54,6 +58,11 @@ public class PreferenceController {
         }
     }
 
+    /**
+     * return all details about a preference with the given id if exists else Not_Found
+     * @param id of a preference
+     * @return details about a preference
+     */
     @GetMapping("/preferences/{id}")
     public ResponseEntity<String> findPreference(@PathVariable("id") Integer id)
     {
@@ -77,6 +86,11 @@ public class PreferenceController {
                 .body("Nu s-a gasit nici o preferenta cu acest id");
     }
 
+    /**
+     * creates a new preference for the current user with the given id of a doctor if the doctor exists
+     * @param request id of a doctor
+     * @return details about the new created preference
+     */
     @PostMapping("/preferences")
     public ResponseEntity<Preference> createPreferences(@RequestBody PreferenceRequest request) {
         //System.out.println(request);
@@ -91,17 +105,34 @@ public class PreferenceController {
 
         return ResponseEntity.ok(preferenceRepository.save(preference));
     }
+
+    /**
+     * search for the preference with the given id and delete it from the db
+     * @param id of a preference
+     * @return success status code(No_Content) or Not_Found
+     */
     @DeleteMapping("/preferences/{id}")
     public ResponseEntity<String> deletePreference(@PathVariable("id") Integer id)
     {
         Optional<Preference> preference=preferenceRepository.findById(id);
         if(preference.isPresent())
         {
-            preferenceRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+            Patient currentUser=getPatientFromToken();
+            if(currentUser!=null && currentUser.getId().equals(preference.get().getPatient().getId())) {
+                preferenceRepository.deleteById(id);
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body("Am sters aceasta programare");
+            }
+            else return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Nu s-a gasit nici o programare cu acest id");
         }
         return ResponseEntity.notFound().build();
     }
+
+    /**
+     * using the jwt get the current user if it is a patient or null if a doctor is authenticated
+     * @return current patient or null
+     */
     private Patient getPatientFromToken() {
         String token = request.getHeader("Authorization");
         String username;

@@ -30,16 +30,25 @@ public class PatientController {
     private HttpServletRequest request;
 
 
-
+    /**
+     * details about all patients in db
+     * @return all patients
+     */
     @GetMapping("/patients")
     public List<Patient> getAllPatients(){
         return patientRepository.findAll();
     }
 
-    @GetMapping("/patients/{id}")
-    public ResponseEntity<String> findPatient(@PathVariable("id") Integer id)
+    /**
+     * using the name given as a path variable verify if exists in db and return all details about that patient
+     * @param name patient name
+     * @return patient with the name specified
+     */
+
+    @GetMapping("/patients/{name}")
+    public ResponseEntity<String> findPatient(@PathVariable("name") String name)
     {
-        Optional<Patient> patient = patientRepository.findById(id);
+        Optional<Patient> patient = patientRepository.findByName(name);
         if (patient.isPresent()) {
             Patient patientObj = patient.get();
 
@@ -52,6 +61,29 @@ public class PatientController {
         return ResponseEntity.notFound().build();
     }
 
+    /**
+     * using jwt return all details from db of the current user
+     * @return all details about the current user
+     */
+    @GetMapping("/patients/personalDetails")
+    public ResponseEntity<String> findDetails()
+    {
+        Patient currentUser=getPatientFromToken();
+        if (currentUser!=null) {
+
+            return ResponseEntity.ok("Patient ID: " + currentUser.getId() +
+                    "\nPatient Name: " + currentUser.getPatientName() +
+                    "\nEmail: " + currentUser.getPatientEmail() +
+                    "\nPhone Number: " + currentUser.getPatientPhoneNumber() +
+                    "\nBirth Date: " + currentUser.getPatientBirthDate());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * delete from db current user information-works like delete account
+     * @return success message (No_Content) or Not_Found
+     */
     @DeleteMapping("/patients/deleteAccount")
     public ResponseEntity<Void> deletePatients()
     {
@@ -68,6 +100,11 @@ public class PatientController {
         }
         else throw new UsernameNotFoundException("User not found");
     }
+
+    /**
+     * using the jwt get the current user if it is a patient or null if a doctor is authenticated
+     * @return current patient or null
+     */
     private Patient getPatientFromToken() {
         String token = request.getHeader("Authorization");
         String username;
