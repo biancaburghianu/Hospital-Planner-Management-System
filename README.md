@@ -22,6 +22,7 @@ The Hospital Planner Management System is an application built with Spring Boot 
 - Hibernate
 - JSON Web Tokens (JWT)
 - Maven
+- Sendgrif
 
 ## Prerequisites
 
