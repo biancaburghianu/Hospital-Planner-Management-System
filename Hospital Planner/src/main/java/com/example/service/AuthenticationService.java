@@ -19,6 +19,13 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    /**
+     * Registers a new patient with the provided registration details.
+     *
+     * @param request The registration details of the patient.
+     * @return An AuthenticationResponse containing the token for the registered patient.
+     */
     public AuthenticationResponse registerPatient(RegisterPatient request) {
         var patient= Patient.builder()
                 .patientName(request.getPatientName())
@@ -31,10 +38,18 @@ public class AuthenticationService {
         patientRepository.save(patient);
         var jwtToken=jwtService.generateToken(patient);
         log.info(jwtToken);
+        //Return the token in an AuthenticationResponse
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
     }
+
+    /**
+     * Registers a new doctor with the provided registration details.
+     *
+     * @param request The registration details of the doctor.
+     * @return An AuthenticationResponse containing the token for the registered doctor.
+     */
     public AuthenticationResponse registerDoctor(RegisterDoctor request) {
         var doctor= Doctor.builder()
                 .doctorName(request.getDoctorName())
@@ -53,6 +68,12 @@ public class AuthenticationService {
                 .build();
     }
 
+    /**
+     * Authenticates a patient with the provided authentication request.
+     *
+     * @param request The authentication request containing the patient's email and password.
+     * @return An AuthenticationResponse containing the token for the authenticated patient.
+     */
     public AuthenticationResponse authenticatePatient(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -69,6 +90,12 @@ public class AuthenticationService {
                 .build();
     }
 
+    /**
+     * Authenticates a doctor with the provided authentication request.
+     *
+     * @param request The authentication request containing the doctor's email and password.
+     * @return An AuthenticationResponse containing the token for the authenticated doctor.
+     */
     public AuthenticationResponse authenticateDoctor(AuthenticationRequest request) {
         log.info(request.getEmail());
         log.info(request.getPassword());

@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .requestMatchers("/hospitalplanner/favoriteDoctorProgram").hasAuthority(PATIENT.name())
                 .requestMatchers("/hospitalplanner/doctors").authenticated()
                 .requestMatchers("/hospitalplanner/patients").hasAuthority(DOCTOR.name())
+                .requestMatchers("/hospitalplanner/patients/personalDetails").hasAuthority(PATIENT.name())
                 .requestMatchers(HttpMethod.DELETE,"/hospitalplanner/doctors/**").hasAuthority(DOCTOR.name())
                 .requestMatchers(HttpMethod.DELETE,"/hospitalplanner/patients/**").hasAuthority(PATIENT.name())
                 .requestMatchers(HttpMethod.POST,"/hospitalplanner/appointments").hasAuthority(PATIENT.name())

@@ -37,6 +37,11 @@ public class ProgramController {
     @Autowired
     private HttpServletRequest request;
 
+    /**
+     * if the user does not have a preference he gets a message about that
+     * if the user has a preference he receives as response with the availability of his program
+     * @return working program of the favorite doctor
+     */
     @GetMapping("/favoriteDoctorProgram")
     public String getFavoriteDoctorProgram() {
         Patient currentUser = getPatientFromToken();
@@ -75,6 +80,12 @@ public class ProgramController {
 
     }
 
+    /**
+     * using a given id check if the doctor exists
+     * check when the doctor has other appointments and return only the program when he is available
+     * @param doctorId id of a doctor from db
+     * @return the working program of a doctor
+     */
     @GetMapping("/doctorProgram/{doctor_id}")
     public String getDoctorProgram(@PathVariable("doctor_id") Integer doctorId) {
         List<Appointment> appointments = appointmentRepository.findAppointmentsByDoctor(doctorId);
@@ -105,6 +116,10 @@ public class ProgramController {
         }
     }
 
+    /**
+     * using the jwt get the current user if it is a patient or null if a doctor is authenticated
+     * @return current patient or null
+     */
     private Patient getPatientFromToken() {
         String token = request.getHeader("Authorization");
         String username;

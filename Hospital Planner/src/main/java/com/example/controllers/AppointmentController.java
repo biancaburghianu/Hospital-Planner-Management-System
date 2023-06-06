@@ -56,8 +56,12 @@ public class AppointmentController {
         this.patientRepository = patientRepository;
     }
 
+    /**
+     * used in order to see all appointments
+     * @return all appointments of a patient
+     */
     @GetMapping("/appointments")
-    public Set<Appointment> getAllAppoitments(){
+    public Set<Appointment> getAllAppointments(){
         Patient currentUser = getPatientFromToken();
         if (currentUser != null) {
             return currentUser.getAppointments(); // Presupunând că există o metodă getPreferences() pe obiectul Patient pentru a obține lista de preferințe.
@@ -66,6 +70,15 @@ public class AppointmentController {
         }
     }
 
+    /**
+     * in order to make an appointment we need the id of the current user(if he is a patient) from token, and the id of a doctor(given in the request body)
+     * verify if doctor is in db
+     * verify the time the appointment has to be done(if it is available or if it is correct written in the request)
+     * if success, save appointment in db and send an email with the information
+     * @param request has all necessary information in order to make an appointment and insert in db
+     * @return the status code of the completed action (Ok, Not_Found, Bad_Request, Internal_Server_Error)
+     * @throws IOException
+     */
     @PostMapping("/appointments")
     public ResponseEntity<String> createAppointment(@RequestBody AppointmentRequest request) throws IOException {
         Integer doctorId = request.getDoctorId();
@@ -80,7 +93,7 @@ public class AppointmentController {
         // verificam daca ora este valida
         HospitalProgram hospitalProgram = new HospitalProgram();
 
-        if (!!HospitalProgram.isValid(request.getTime())) {
+        if (!HospitalProgram.isValid(request.getTime())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Ora specificata nu se afla in programul spitalului nostru.");
         }
@@ -129,6 +142,13 @@ public class AppointmentController {
         }
     }
 
+    /**
+     * verify that id given as a param is present in db
+     * verify if the appointment is of the current user even if it is a patient or a doctor
+     * a patient can only delete his appointments, and a doctor can only delete the appointments where he is a doctor
+     * @param id of the appointment to be deleted
+     * @return success message (No_Content) or Not_Found if the given id is not in our db
+     */
     @DeleteMapping("/appointments/{id}")
     public ResponseEntity<String> deleteAppointment(@PathVariable("id") Integer id) {
         Optional<Appointment> appointment = appointmentRepository.findById(id);
@@ -155,6 +175,11 @@ public class AppointmentController {
                 .body("Nu exista nicio astfel de programare");
     }
 
+    /**
+     * gives information about an appointment based on an id and of the current user
+     * @param id of an appointment
+     * @return appointment details based on id and only id it is the appointment of the current user
+     */
     @GetMapping("/appointments/{id}")
     public ResponseEntity<String> findAppointment(@PathVariable Integer id) {
         //log.info("appointment");
@@ -188,6 +213,10 @@ public class AppointmentController {
                 .body("Programarea nu exista in baza noastra de date");
     }
 
+    /**
+     * using the jwt get the current user if it is a patient or null if a doctor is authenticated
+     * @return current patient or null
+     */
     private Patient getPatientFromToken() {
         String token = request.getHeader("Authorization");
         String username;
@@ -199,10 +228,10 @@ public class AppointmentController {
                 username = jwtService.extractUsername(jwtToken);
                 Optional<Doctor> currentDoctor = doctorRepository.findByEmail(username);
                 if (currentDoctor.isPresent()) {
-                    // Return null if a patient is authenticated
+                    // Return null if a doctor is authenticated
                     return null;
                 } else {
-                    // Retrieve the doctor based on username
+                    // Retrieve the patient based on username
                     currentUser = patientRepository.findByEmail(username);
                 }
             } catch (IllegalArgumentException e) {
@@ -216,6 +245,10 @@ public class AppointmentController {
         else throw new UsernameNotFoundException("User not found");
     }
 
+    /**
+     * using the jwt get the current user if it is a doctor or null if a patient is authenticated
+     * @return current doctor or null
+     */
     private Doctor getDoctorFromToken() {
         String token = request.getHeader("Authorization");
         String username;

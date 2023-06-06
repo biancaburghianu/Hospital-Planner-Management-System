@@ -19,20 +19,46 @@ import java.util.function.Function;
 public class JwtService {
     private static final String secretKey="2B4B6250655368566D5971337436773979244226452948404D635166546A576E";
 
+    /**
+     * extracts the username from the provided jwt.
+     *
+     * @param token jwt from which to extract the username.
+     * @return The username extracted from the token.
+     */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    /**
+     * extracts the claim from the provided jwt using the given claims resolver function.
+     *
+     * @param token          jwt from which to extract the claim.
+     * @param claimsResolver function used to resolve the desired claim from the token's claims.
+     * @param <T>            type of the claim.
+     * @return resolved claim from the token.
+     */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-    
 
+    /**
+     * generate jwt for the given user details.
+     *
+     * @param userDetails user details for whom to generate the token.
+     * @return token.
+     */
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
+    /**
+     * generate jwt with additional claims for the given user details.
+     *
+     * @param extraClaims  additional claims to include in the token.
+     * @param userDetails  user details for whom to generate the token.
+     * @return token.
+     */
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
@@ -47,13 +73,13 @@ public class JwtService {
                 .compact();
     }
 
-//    public String generateRefreshToken(
-//            UserDetails userDetails
-//    ) {
-//        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
-//    }
-
-
+    /**
+     * verify if the token is valid for the given user
+     *
+     * @param token        jwt to validate.
+     * @param userDetails used to validate token.
+     * @return true if the token is valid for the user details, false otherwise.
+     */
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
